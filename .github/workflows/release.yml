@@ -16,7 +16,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0   # чтобы были теги и история
+          fetch-depth: 0  # чтобы были теги
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -31,13 +31,7 @@ jobs:
       - name: Read package version
         id: version
         run: |
-          VERSION=$(python - <<'PY'
-import configparser
-cfg = configparser.ConfigParser()
-cfg.read('setup.cfg')
-print(cfg['metadata']['version'])
-PY
-)
+          VERSION=$(python -c "import configparser; cfg=configparser.ConfigParser(); cfg.read('setup.cfg'); print(cfg['metadata']['version'])")
           echo "PACKAGE_VERSION=$VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Fetch tags
@@ -71,7 +65,7 @@ PY
           path: dist/
 
       - name: Create GitHub Release
-        if: steps.tag.outputs.tag_exists == 'false'
+        if: ${{ steps.tag.outputs.tag_exists == 'false' }}
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.tag.outputs.TAG }}
@@ -87,7 +81,7 @@ PY
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish to PyPI
-        if: steps.tag.outputs.tag_exists == 'false' && secrets.PYPI_API_TOKEN != ''
+        if: ${{ steps.tag.outputs.tag_exists == 'false' && secrets.PYPI_API_TOKEN != '' }}
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           password: ${{ secrets.PYPI_API_TOKEN }}
