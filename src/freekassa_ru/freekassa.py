@@ -20,7 +20,7 @@ def get_order_label(order_status):
 
 
 class Freekassa:
-    API_URL = 'https://api.freekassa.ru/v1/'
+    API_URL = 'https://api.fk.life/v1/'
     API_BALANCE_ROUTE = 'balance'
     API_ORDERS_ROUTE = 'orders'
     API_ORDERS_CREATE_ROUTE = 'orders/create'
@@ -30,22 +30,24 @@ class Freekassa:
     API_CURRENCIES_ROUTE = 'currencies'
     API_CURRENCIES_STATUS_ROUTE = 'currencies/%id%/status'
     API_SHOPS_ROUTE = 'shops'
+    API_ORDERS_REFUND_ROUTE = '/orders/refund'
 
     _api_key = ''
     _shop_id = 0
     _nonce = 0
 
-    def __init__(self, api_key, shop_id):
+    def __init__(self, api_key, shop_id, base_url=API_URL):
         self._api_key = api_key
         self._shop_id = shop_id
+        self._base_url = base_url
         self._set_nonce()
 
     def _set_nonce(self):
         self._nonce = int(datetime.datetime.now().timestamp())
 
     def _get_url(self, route, **kwargs):
-        url = f'{self.API_URL}{route}'
-        for key, value in kwargs:
+        url = f'{self._base_url}{route}'
+        for key, value in kwargs.items():
             url = url.replace(f'%{key}%', value)
         return url
 
@@ -152,6 +154,12 @@ class Freekassa:
         if payment_id:
             additional_fields['paymentId'] = payment_id
         return self._request(self.API_WITHDRAWALS_CREATE_ROUTE, additional_fields=additional_fields)
+    
+    def refund_order(self, order_id: int, nonce: int, paymentId: str):
+        additional_fields = {'orderId': order_id, 'nonce': nonce}
+        if paymentId:
+            additional_fields['paymentId'] = paymentId
+        return self._request(self.API_ORDERS_REFUND_ROUTE, additional_fields=additional_fields)
 
     def get_payment_systems(self):
         return self._request(self.API_CURRENCIES_ROUTE)

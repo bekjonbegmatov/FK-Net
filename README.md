@@ -2,12 +2,12 @@
 
 # Установка
 
-pip install freekassa-ru
+pip install fk-net
 
 # Использование API
 
 ```
-from freekassa_ru import Freekassa
+from fk_net import Freekassa
 
 
 SHOP_ID = ''
@@ -108,6 +108,15 @@ list = fk.create_order(payment_system_id, email, ip, amount)
         "orderHash": "bd4161db429848651499aabcb1d89330",
         "location": "https://pay.freekassa.ru/form/123/bd4161db429848651499aabcb1d89330"
     }
+```
+
+## Возврат заказа
+
+```
+order_id = 123
+nonce = 1648590400
+payment_id = '1234567890'
+fk.refund_order(order_id, nonce, payment_id)
 ```
 
 ## Список выплат
