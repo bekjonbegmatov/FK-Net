@@ -81,7 +81,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish to PyPI
-        if: ${{ steps.tag.outputs.tag_exists == 'false' && secrets.PYPI_API_TOKEN != '' }}
+        if: ${{ steps.tag.outputs.tag_exists == 'false' }}
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           password: ${{ secrets.PYPI_API_TOKEN }}
