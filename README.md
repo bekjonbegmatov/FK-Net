@@ -2,7 +2,9 @@
 
 # Установка
 
+```
 pip install fk-net
+```
 
 # Использование API
 
@@ -106,7 +108,7 @@ list = fk.create_order(payment_system_id, email, ip, amount)
         "type": "success",
         "orderId": 123,
         "orderHash": "bd4161db429848651499aabcb1d89330",
-        "location": "https://pay.freekassa.ru/form/123/bd4161db429848651499aabcb1d89330"
+        "location": "https://pay.freekassa.net/form/123/bd4161db429848651499aabcb1d89330"
     }
 ```
 
@@ -258,3 +260,25 @@ try:
 except FreekassaNotificationError as e:
     print(e) # Ошибка проверки оповещения о платеже
 ```
+
+## CI/CD (GitHub Actions): Автоматический релиз и публикация в PyPI
+
+- Workflow создаёт GitHub Release и публикует пакет в PyPI после push/merge в `master`.
+- Версия берётся из `setup.cfg` (`[metadata] version`). При изменении версии создаётся/обновляется тег `v<version>`.
+
+### Настройка
+
+- Добавьте секрет `PYPI_API_TOKEN` в репозитории GitHub: `Settings → Secrets and variables → Actions → New repository secret`.
+  - Значение: PyPI API token (`pypi-...`).
+- Убедитесь, что `setup.cfg` содержит актуальную версию.
+
+### Как работает
+
+- Триггеры: `push` в ветку `master` и ручной запуск (`workflow_dispatch`).
+- Шаги:
+  - Читает версию из `setup.cfg`.
+  - Создаёт (или переиспользует) тег `v<version>` и GitHub Release.
+  - Собирает дистрибутив (`wheel` + `sdist`), прикрепляет файлы к релизу.
+  - Публикует в PyPI (если задан секрет `PYPI_API_TOKEN`).
+
+Файл workflow: `.github/workflows/release.yml`.
